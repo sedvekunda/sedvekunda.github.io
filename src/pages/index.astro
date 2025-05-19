@@ -1,16 +1,41 @@
 ---
+import { getCollection, render } from "astro:content";
+import Layout from "../layouts/Layout.astro";
 
+const sections = await getCollection("sections", async (section) => {
+  const { Content } = await render(section);
+  return Content;
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<style>
+  section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;
+    background-color: rgba(161, 87, 4, 0.5);
+  }
+  section:nth-child(odd) {
+    background-color: rgb(249, 238, 4, 0.6);
+  }
+  section div {
+    text-align: center;
+  }
+</style>
+
+<Layout>
+  {
+    sections
+      .filter((content) => content.rendered?.html)
+      .sort((a, b) => a.data.order - b.data.order)
+      .map((content) => (
+        <section>
+          <div>
+            <Fragment set:html={content.rendered!.html} />
+          </div>
+        </section>
+      ))
+  }
+</Layout>
